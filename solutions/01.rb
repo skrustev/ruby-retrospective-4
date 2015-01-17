@@ -6,8 +6,8 @@ def sequence(first, second, index)
   end
 end
 
-def series(name_sequence, index)
-  return sequence(1, 1, index) if name_sequence == 'fibonacci'
-  return sequence(2, 1, index) if name_sequence == 'lucas'
-  sequence(1, 1, index) + sequence(2, 1, index) if name_sequence == 'summed'
+def series(type, index)
+  return sequence(1, 1, index) if type == 'fibonacci'
+  return sequence(2, 1, index) if type == 'lucas'
+  sequence(1, 1, index) + sequence(2, 1, index) if type == 'summed'
 end

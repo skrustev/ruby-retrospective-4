@@ -7,7 +7,9 @@ def sequence(first, second, index)
 end
 
 def series(type, index)
-  return sequence(1, 1, index) if type == 'fibonacci'
-  return sequence(2, 1, index) if type == 'lucas'
-  sequence(1, 1, index) + sequence(2, 1, index) if type == 'summed'
+  case type
+    when 'fibonacci' then sequence(1, 1, index)
+    when 'lucas' then sequence(2, 1, index)
+    when 'summed' then sequence(1, 1, index) + sequence(2, 1, index)
+  end
 end

@@ -40,11 +40,11 @@ class Filter
   end
 
   def &(other)
-    Filter.new { |x| @filter.call(x) and other.filter.call(x) }
+    Filter.new { |x| @filter.call(x) && other.filter.call(x) }
   end
 
   def |(other)
-    Filter.new { |x| @filter.call(x) or other.filter.call(x) }
+    Filter.new { |x| @filter.call(x) || other.filter.call(x) }
   end
 
 end

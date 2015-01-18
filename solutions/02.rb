@@ -55,9 +55,10 @@ class TypeFilter < Filter
   def initialize(type)
     @filter =
       case type
-      when :integer then lambda { |number| number.integer? }
-      when :real then lambda { |number| number.real? and (not number.integer?) }
-      else lambda { |number| number.eql?(number.to_c) }
+      when :integer then lambda { |number| number.is_a? Integer }
+      when :real then lambda { |number| number.is_a?(Float) ||
+                                          number.is_a?(Rational) }
+      else lambda { |number| number.is_a? Complex }
       end
   end
 

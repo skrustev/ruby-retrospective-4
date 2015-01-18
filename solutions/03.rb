@@ -17,21 +17,21 @@ module RBFS
     end
 
     def serialize
-      data_type + ':' + @data.to_s
+      data_type.to_s + ':' + @data.to_s
     end
 
     def self.parse(string_data)
-      array = string_data.split(':', 2)
-      case array[0]
-      when 'string' then File.new(array[1])
-      when 'symbol' then File.new(':' + array[1])
-      when 'number' then File.new(to_number(array[1]))
-      when 'boolean' then File.new(string == 'true')
+      data_type, data = string_data.split(':', 2)
+      case data_type
+      when 'string' then File.new(data)
+      when 'symbol' then File.new(data.to_sym)
+      when 'number' then File.new(parse_number(data))
+      when 'boolean' then File.new(data == 'true')
       else File.new
       end
     end
 
-    def self.to_number(string)
+    def self.parse_number(string)
       if string.include?('.')
         string.to_f
       else
@@ -40,9 +40,24 @@ module RBFS
     end
   end
 
-  class BaseDirectory
-    attr_reader :files
-    attr_reader :directories
+  class Parser
+    def initialize(string_data)
+      @string_data = string_data
+    end
+
+    def parse_array
+      num_objects, @string_data = @string_data.split(':', 2)
+
+      num_objects.to_i.times do
+        name, length, rest = @string_data.split(':', 3)
+        yield name, rest[0...length.to_i]
+        @string_data = rest[length.to_i..-1]
+      end
+    end
+  end
+
+  class Directory
+    attr_reader :files, :directories
 
     def initialize
       @files = {}
@@ -53,12 +68,8 @@ module RBFS
       @files[name] = file
     end
 
-    def add_directory(name, directory = nil)
-      if directory
-        @directories[name] = directory
-      else
-        @directories[name] = Directory.new
-      end
+    def add_directory(name, directory = Directory.new)
+      @directories[name] = directory
     end
 
     def [](name)
@@ -71,52 +82,30 @@ module RBFS
       end
     end
 
-  end
-
-  class Directory <BaseDirectory
     def serialize
-      return serialize_structure(@files) + serialize_structure(@directories)
+      serialize_objects(@files) + serialize_objects(@directories)
     end
 
-    def serialize_structure(structure)
-      result = structure.size.to_s + ':'
-      structure.each do |name, type|
-        result += "#{name}:" + type.serialize.length.to_s + ':' + type.serialize
+    def serialize_objects(objects)
+      serialized_objects = objects.map do |name, object|
+        serialized_object = object.serialize
+        "#{name}:#{serialized_object.length}:#{serialized_object}"
       end
-      return result
+      "#{objects.count}:#{serialized_objects.join('')}"
+
     end
 
     def self.parse(string_data)
       new_dir = Directory.new
-      data = string_data
-      data = parse_file(data, new_dir)
-      parse_directory(data, new_dir)
-      return new_dir
-    end
-
-    def self.parse_file(data, dir)
-      type_count = data.split(':', 2).first.to_i
-      data = data.split(':', 2).last
-      type_count.times do
-        data = data.split(':',3)
-        dir.add_file(data[0], RBFS::File.parse(data[2][0...data[1].to_i]))
-        data = data[2][(data[1].to_i)..-1]
+      parser = Parser.new(string_data)
+      parser.parse_array do |name, data|
+        new_dir.add_file(name, File.parse(data))
+      end
+      parser.parse_array do |name, data|
+        new_dir.add_directory(name, Directory.parse(data))
       end
 
-      return data
-    end
-
-    def self.parse_directory(data, dir)
-      type_count = data.split(':', 2).first.to_i
-      data = data.split(':', 2).last
-      type_count.times do
-        data = data.split(':',3)
-        dir.add_directory(data[0],
-        RBFS::Directory.parse(data[2][0...data[1].to_i]))
-        data = data[2][(data[1].to_i)..-1]
-      end
-
-      return data
+      new_dir
     end
   end
 end

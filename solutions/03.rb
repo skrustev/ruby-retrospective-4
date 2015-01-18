@@ -45,13 +45,13 @@ module RBFS
       @string_data = string_data
     end
 
-    def parse_array
-      num_objects, @string_data = @string_data.split(':', 2)
+    def parse_entities
+      num_entities, @string_data = @string_data.split(':', 2)
 
-      num_objects.to_i.times do
-        name, length, rest = @string_data.split(':', 3)
-        yield name, rest[0...length.to_i]
-        @string_data = rest[length.to_i..-1]
+      num_entities.to_i.times do
+        entity_name, entity_length, tail = @string_data.split(':', 3)
+        yield entity_name, tail[0...entity_length.to_i]
+        @string_data = tail[entity_length.to_i..-1]
       end
     end
   end
@@ -73,13 +73,7 @@ module RBFS
     end
 
     def [](name)
-      if @directories.has_key?(name)
-        @directories[name]
-      elsif @files.has_key?(name)
-        @files[name]
-      else
-        return nil
-      end
+      @directories[name] || @files[name]
     end
 
     def serialize
@@ -98,10 +92,10 @@ module RBFS
     def self.parse(string_data)
       new_dir = Directory.new
       parser = Parser.new(string_data)
-      parser.parse_array do |name, data|
+      parser.parse_entities do |name, data|
         new_dir.add_file(name, File.parse(data))
       end
-      parser.parse_array do |name, data|
+      parser.parse_entities do |name, data|
         new_dir.add_directory(name, Directory.parse(data))
       end
 

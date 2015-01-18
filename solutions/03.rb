@@ -3,7 +3,7 @@ module RBFS
     attr_accessor :data
 
     def initialize(data = nil)
-      @content = data
+      @data = data
     end
 
     def data_type
@@ -17,7 +17,7 @@ module RBFS
     end
 
     def serialize
-      @type.to_s + ':' + @content.to_s
+      data_type + ':' + @data.to_s
     end
 
     def self.parse(string_data)

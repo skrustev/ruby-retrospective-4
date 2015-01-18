@@ -26,13 +26,9 @@ module RBFS
       when 'string' then File.new(array[1])
       when 'symbol' then File.new(':' + array[1])
       when 'number' then File.new(to_number(array[1]))
-      when 'boolean' then File.new(to_boolean(array[1]))
+      when 'boolean' then File.new(string == 'true')
       else File.new
       end
-    end
-
-    def self.to_boolean(string)
-      string == 'true'
     end
 
     def self.to_number(string)

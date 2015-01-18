@@ -10,9 +10,7 @@ class NumberSet
   end
 
   def <<(input_number)
-    unless @set.include?(input_number)
-      @set << input_number
-    end
+    @set << input_number unless @set.include?(input_number)
   end
 
   def size

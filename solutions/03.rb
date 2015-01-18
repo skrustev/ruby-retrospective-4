@@ -1,28 +1,19 @@
 module RBFS
   class File
+    attr_accessor :data
+
     def initialize(data = nil)
       @content = data
-      self.define_type
-    end
-
-    def define_type
-      @type =
-        case
-        when @content.is_a?(String) then :string
-        when @content.is_a?(Symbol) then :symbol
-        when @content.is_a?(Fixnum) || @content.is_a?(Float) then :number
-        when @content.is_a?(TrueClass) || @content.is_a?(FalseClass) then :boolean
-        else :nil
-        end
     end
 
     def data_type
-      return @type
-    end
-
-    def data=(new_data)
-      @content = new_data
-      self.define_type
+      case @data
+        when String                then :string
+        when Symbol                then :symbol
+        when Fixnum, Float         then :number
+        when TrueClass, FalseClass then :boolean
+        when NilClass              then :nil
+      end
     end
 
     def serialize
@@ -124,7 +115,8 @@ module RBFS
       data = data.split(':', 2).last
       type_count.times do
         data = data.split(':',3)
-        dir.add_directory(data[0], RBFS::Directory.parse(data[2][0...data[1].to_i]))
+        dir.add_directory(data[0],
+        RBFS::Directory.parse(data[2][0...data[1].to_i]))
         data = data[2][(data[1].to_i)..-1]
       end
 

@@ -2,37 +2,29 @@ class NumberSet
   include Enumerable
 
   def initialize
-    @array = []
+    @set = []
   end
 
-  def each
-    if (block_given?)
-      @array.each do |current|
-        yield current
-      end
-
-      return @array
-    else
-      to_enum(:each)
-    end
+  def each(&block)
+    @set.each(&block)
   end
 
   def <<(input_number)
-    unless @array.include?(input_number)
-      @array << input_number
+    unless @set.include?(input_number)
+      @set << input_number
     end
   end
 
   def size
-    @array.size
+    @set.size
   end
 
   def empty?
-    @array.empty?
+    @set.empty?
   end
 
   def [](condition)
-    @array.each_with_object([]) { |i , a| a << i if condition.filter.call(i) }
+    @set.each_with_object([]) { |i , a| a << i if condition.filter.call(i) }
   end
 
 end

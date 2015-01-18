@@ -52,9 +52,9 @@ end
 
 class TypeFilter < Filter
 
-  def initialize(filter_key)
+  def initialize(type)
     @filter =
-      case filter_key
+      case type
       when :integer then lambda { |number| number.integer? }
       when :real then lambda { |number| number.real? and (not number.integer?) }
       else lambda { |number| number.eql?(number.to_c) }
@@ -66,9 +66,9 @@ end
 
 class SignFilter < Filter
 
-  def initialize(filter_key)
+  def initialize(sign)
     @filter =
-      case filter_key
+      case sign
       when :positive then lambda { |number| number > 0 }
       when :non_positive then lambda { |number| number <= 0 }
       when :negative then lambda { |number| number < 0 }
